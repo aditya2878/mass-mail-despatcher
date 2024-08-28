@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mass-Mail Dispatcher</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input[type="file"] { margin-bottom: 20px; }
+        pre { background: #f4f4f4; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Mass-Mail Dispatcher</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="fileInput" name="file" accept=".csv" required>
+        <button type="submit">Upload CSV</button>
+    </form>
+    <h2>Valid Emails</h2>
+    <pre id="validEmails"></pre>
+    <h2>Invalid Emails</h2>
+    <pre id="invalidEmails"></pre>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                document.getElementById('validEmails').textContent = 
+                data.valid_emails.join('\n');
+                document.getElementById('invalidEmails').textContent = data.invalid_emails.join('\n');
+            })
+            .catch(error => {
+                alert('An error occurred: ' + error.message);
+            });
+        });
+    </script>
+
+</body>
+</html>
